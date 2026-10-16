@@ -16,7 +16,10 @@ jobs:
       - uses: arduino/arduino-lint-action@v2
         with:
           library-manager: submit
-          compliance: strict
+          # "specification" while the repository is private: at "strict", rule LP042
+          # fails because the library.properties url returns 404 without a login.
+          # Set back to "strict" once the repository is public.
+          compliance: specification
 
   compile:
     runs-on: ubuntu-24.04  # pinned; change deliberately
@@ -28,10 +31,11 @@ jobs:
             core: arduino:avr
           - fqbn: arduino:renesas_uno:minima
             core: arduino:renesas_uno
-          # Enable once phyduino_bsp v0.1.0 is published and the repository is public:
-          # - fqbn: phyduino:rp2:phyduino_pico
-          #   core: phyduino:rp2
-          #   url: https://github.com/perc-sw/phyduino_bsp/releases/latest/download/package_phyduino_index.json
+          # Pinned to a pre-release: releases/latest skips pre-releases. Once
+          # phyduino_bsp v0.1.0 is out, use .../releases/latest/download/package_phyduino_index.json
+          - fqbn: phyduino:rp2:phyduino_pico
+            core: phyduino:rp2
+            url: https://github.com/perc-sw/phyduino_bsp/releases/download/v0.1.0-alpha.1/package_phyduino_index.json
     steps:
       - uses: actions/checkout@v7
 

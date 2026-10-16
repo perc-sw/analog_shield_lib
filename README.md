@@ -8,7 +8,9 @@ used in the University of Toronto, Department of Physics,
 "[Introduction to Electronics](https://plrs.physics.utoronto.ca/course-listing/)" course.
 
 The library uses only the standard Arduino API. It is developed for the
-[Phyduino Pico](https://github.com/perc-sw/phyduino_pico) and also builds for the Arduino Uno.
+[Phyduino Pico](https://github.com/perc-sw/phyduino_pico) (board package
+[phyduino_bsp](https://github.com/perc-sw/phyduino_bsp) v0.1.0-alpha.1 or later) and also builds
+for the Arduino Uno.
 
 Documentation: <https://perc-sw.github.io/analog_shield_lib/>
 
