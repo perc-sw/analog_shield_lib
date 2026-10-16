@@ -32,12 +32,13 @@ void AnalogShield::begin() {
   pinMode(AnalogShieldPins::ENC_A, INPUT);
   pinMode(AnalogShieldPins::ENC_B, INPUT);
 
-  // LEDs are active low
+  // LEDs are active low. Set the pin mode first: on the RP2040/RP2350,
+  // pinMode() resets the output level, so a write before it would be lost.
   pinMode(AnalogShieldPins::LED1, OUTPUT);
   pinMode(AnalogShieldPins::LED2, OUTPUT);
 
-  digitalWrite(AnalogShieldPins::LED1, LOW);
-  digitalWrite(AnalogShieldPins::LED2, LOW);
+  digitalWrite(AnalogShieldPins::LED1, HIGH);
+  digitalWrite(AnalogShieldPins::LED2, HIGH);
 
   // Quadrature decoding on every edge of A and B
   count = 0;

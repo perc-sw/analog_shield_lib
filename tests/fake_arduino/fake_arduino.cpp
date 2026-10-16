@@ -19,13 +19,13 @@ void setInput(pin_size_t pin, uint8_t level) {
 
 }  // namespace fake
 
-void pinMode(pin_size_t pin, uint8_t mode) {
-  fake::Pin& p = fake::pins[pin];
-  p.mode = mode;
-  if (mode == OUTPUT) p.level_at_output = p.out_level;
-}
+void pinMode(pin_size_t pin, uint8_t mode) { fake::pins[pin].mode = mode; }
 
-void digitalWrite(pin_size_t pin, uint8_t value) { fake::pins[pin].out_level = value ? HIGH : LOW; }
+void digitalWrite(pin_size_t pin, uint8_t value) {
+  fake::Pin& p = fake::pins[pin];
+  p.out_level = value ? HIGH : LOW;
+  p.mode_at_write = p.mode;
+}
 
 int digitalRead(pin_size_t pin) {
   const fake::Pin& p = fake::pins[pin];

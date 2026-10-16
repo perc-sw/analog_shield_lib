@@ -51,7 +51,7 @@ constexpr uint8_t UNSET = 0xFF;
 struct Pin {
   uint8_t mode = UNSET;             // last pinMode(), UNSET if never called
   uint8_t out_level = LOW;          // last digitalWrite()
-  uint8_t level_at_output = UNSET;  // out_level when pinMode(OUTPUT) was called
+  uint8_t mode_at_write = UNSET;    // mode when digitalWrite() was last called
   uint8_t input_level = LOW;        // returned by digitalRead() unless OUTPUT
   int analog_value = 0;             // returned by analogRead()
   void (*isr)() = nullptr;          // last attachInterrupt(), nullptr once detached

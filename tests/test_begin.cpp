@@ -23,9 +23,9 @@ TEST_CASE_FIXTURE(HostTest, "begin() turns the active-low LEDs off") {
   CHECK(digitalRead(LED2) == HIGH);
 }
 
-TEST_CASE_FIXTURE(HostTest, "begin() sets the LED level before enabling the output, so they never flash on") {
+TEST_CASE_FIXTURE(HostTest, "begin() sets the LED pins as outputs before writing them") {
   AnalogShield shield;
   shield.begin();
-  CHECK(fake::pins[LED1].level_at_output == HIGH);
-  CHECK(fake::pins[LED2].level_at_output == HIGH);
+  CHECK(fake::pins[LED1].mode_at_write == OUTPUT);
+  CHECK(fake::pins[LED2].mode_at_write == OUTPUT);
 }
