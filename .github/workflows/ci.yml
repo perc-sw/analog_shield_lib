@@ -49,10 +49,14 @@ jobs:
           echo "$RUNNER_TEMP/arduino-cli" >> "$GITHUB_PATH"
 
       - name: Install core ${{ matrix.core }}
+        env:
+          CORE: ${{ matrix.core }}
+          BOARD_URL: ${{ matrix.url }}
         run: |
-          URL_ARG=${{ matrix.url && format('--additional-urls {0}', matrix.url) || '' }}
-          arduino-cli core update-index $URL_ARG
-          arduino-cli core install ${{ matrix.core }} $URL_ARG
+          url_args=()
+          if [ -n "$BOARD_URL" ]; then url_args=(--additional-urls "$BOARD_URL"); fi
+          arduino-cli core update-index "${url_args[@]}"
+          arduino-cli core install "$CORE" "${url_args[@]}"
 
       - name: Compile examples
         run: |
