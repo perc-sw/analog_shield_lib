@@ -2,9 +2,9 @@
  * @file test_pins.cpp
  * @brief Pin map matches the Analog Shield Rev-C schematic (J4 analog, J7 digital header).
  */
-#include "test_support.h"
-
 #include <set>
+
+#include "test_support.h"
 
 using namespace AnalogShieldPins;
 
@@ -25,7 +25,6 @@ TEST_CASE("digital signals are on the schematic's header pins") {
 }
 
 TEST_CASE("no two signals share a pin") {
-  const uint8_t all[] = {TEMP_SIG_MCU, SENSOR_IN, TEMP_SIG_EXT, IR_VOUT, POT,
-                         ENC_SW, ENC_A, ENC_B, LED2, LED1};
+  const uint8_t all[] = {TEMP_SIG_MCU, SENSOR_IN, TEMP_SIG_EXT, IR_VOUT, POT, ENC_SW, ENC_A, ENC_B, LED2, LED1};
   CHECK(std::set<uint8_t>(std::begin(all), std::end(all)).size() == std::size(all));
 }

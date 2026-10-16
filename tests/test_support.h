@@ -8,8 +8,8 @@
 
 #include <doctest/doctest.h>
 
-#include "Arduino.h"
 #include "AnalogShield.h"
+#include "Arduino.h"
 
 struct HostTest {
   HostTest() { fake::reset(); }
