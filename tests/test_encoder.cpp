@@ -2,6 +2,8 @@
  * @file test_encoder.cpp
  * @brief Rotary encoder counting through the ENC_A / ENC_B interrupts.
  */
+#include <initializer_list>
+
 #include "test_support.h"
 
 using namespace AnalogShieldPins;
@@ -112,4 +114,32 @@ TEST_CASE_FIXTURE(HostTest, "encoder keeps counting after the callback is remove
   stepForward();
   CHECK(callback_calls == 0);
   CHECK(shield.EncoderCount() == 4);
+}
+
+TEST_CASE_FIXTURE(HostTest, "SetEncoderCount() sets the count, and with no argument resets it") {
+  AnalogShield shield;
+  shield.begin();
+  stepForward();
+  shield.SetEncoderCount(100);
+  CHECK(shield.EncoderCount() == 100);
+  CHECK(fake::interrupts_on);  // interrupts back on afterwards
+  stepForward();
+  CHECK(shield.EncoderCount() == 104);  // counting carries on from the new value
+  shield.SetEncoderCount();
+  CHECK(shield.EncoderCount() == 0);
+}
+
+TEST_CASE_FIXTURE(HostTest, "EncoderDetents() counts clicks, 2 steps each, rounded toward zero") {
+  AnalogShield shield;
+  shield.begin();
+  for (const int32_t count : {0, 1, 2, 3, 4, 60}) {
+    shield.SetEncoderCount(count);
+    CHECK(shield.EncoderDetents() == count / 2);
+    shield.SetEncoderCount(-count);
+    CHECK(shield.EncoderDetents() == -(count / 2));
+  }
+  shield.SetEncoderCount();
+  stepForward();  // one quadrature cycle = 2 clicks
+  CHECK(shield.EncoderDetents() == 2);
+  CHECK(AnalogShield::COUNTS_PER_DETENT * AnalogShield::DETENTS_PER_REV == 60);
 }

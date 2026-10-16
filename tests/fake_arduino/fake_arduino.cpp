@@ -3,9 +3,15 @@
 namespace fake {
 
 Pin pins[NUM_PINS];
+int analog_resolution = 10;
+int analog_reads = 0;
+bool interrupts_on = true;
 
 void reset() {
   for (Pin& p : pins) p = Pin{};
+  analog_resolution = 10;
+  analog_reads = 0;
+  interrupts_on = true;
 }
 
 void setInput(pin_size_t pin, uint8_t level) {
@@ -32,7 +38,19 @@ int digitalRead(pin_size_t pin) {
   return p.mode == OUTPUT ? p.out_level : p.input_level;
 }
 
-int analogRead(pin_size_t pin) { return fake::pins[pin].analog_value; }
+int analogRead(pin_size_t pin) {
+  fake::Pin& p = fake::pins[pin];
+  ++fake::analog_reads;
+  if (p.analog_sequence.empty()) return p.analog_value;
+  const int value = p.analog_sequence[p.analog_next];
+  p.analog_next = (p.analog_next + 1) % p.analog_sequence.size();
+  return value;
+}
+
+void analogReadResolution(int bits) { fake::analog_resolution = bits; }
+
+void noInterrupts() { fake::interrupts_on = false; }
+void interrupts() { fake::interrupts_on = true; }
 
 int digitalPinToInterrupt(pin_size_t pin) { return pin; }
 

@@ -4,13 +4,15 @@
  *
  * Pin numbering follows the Uno and Phyduino Pico (digital 0-13, A0-A5 = 14-19).
  * Calls are recorded in fake::pins; tests set fake::pins[p].input_level and
- * fake::pins[p].analog_value to drive inputs, or fake::setInput() to also fire
+ * fake::pins[p].analog_value (or analog_sequence) to drive inputs, or fake::setInput() to also fire
  * the pin's interrupt. Add functions here as the library
  * starts to use them.
  */
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
+#include <vector>
 
 using pin_size_t = uint8_t;
 
@@ -38,6 +40,10 @@ void pinMode(pin_size_t pin, uint8_t mode);
 void digitalWrite(pin_size_t pin, uint8_t value);
 int digitalRead(pin_size_t pin);
 int analogRead(pin_size_t pin);
+void analogReadResolution(int bits);
+
+void noInterrupts();
+void interrupts();
 
 // Interrupt numbers equal pin numbers, as on the RP2040/RP2350
 int digitalPinToInterrupt(pin_size_t pin);
@@ -49,16 +55,22 @@ namespace fake {
 constexpr uint8_t UNSET = 0xFF;
 
 struct Pin {
-  uint8_t mode = UNSET;             // last pinMode(), UNSET if never called
-  uint8_t out_level = LOW;          // last digitalWrite()
-  uint8_t mode_at_write = UNSET;    // mode when digitalWrite() was last called
-  uint8_t input_level = LOW;        // returned by digitalRead() unless OUTPUT
-  int analog_value = 0;             // returned by analogRead()
-  void (*isr)() = nullptr;          // last attachInterrupt(), nullptr once detached
-  uint8_t isr_mode = UNSET;         // mode passed to attachInterrupt()
+  uint8_t mode = UNSET;              // last pinMode(), UNSET if never called
+  uint8_t out_level = LOW;           // last digitalWrite()
+  uint8_t mode_at_write = UNSET;     // mode when digitalWrite() was last called
+  uint8_t input_level = LOW;         // returned by digitalRead() unless OUTPUT
+  int analog_value = 0;              // returned by analogRead() while analog_sequence is empty
+  std::vector<int> analog_sequence;  // otherwise returned in turn, repeating
+  size_t analog_next = 0;            // next analog_sequence index
+  void (*isr)() = nullptr;           // last attachInterrupt(), nullptr once detached
+  uint8_t isr_mode = UNSET;          // mode passed to attachInterrupt()
 };
 
 extern Pin pins[NUM_PINS];
+
+extern int analog_resolution;  // last analogReadResolution(), 10 at power-on
+extern int analog_reads;       // analogRead() calls since reset()
+extern bool interrupts_on;     // false between noInterrupts() and interrupts()
 
 // Back to power-on state; call at the start of every test
 void reset();
