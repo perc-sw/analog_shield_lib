@@ -29,6 +29,9 @@ env:
 jobs:
   build:
     runs-on: ubuntu-24.04  # pinned; change deliberately
+    permissions:
+      contents: read
+      pages: read  # configure-pages reads the repository's Pages settings
     steps:
       - uses: actions/checkout@v7
 
