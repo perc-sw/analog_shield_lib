@@ -1,6 +1,7 @@
 # Analog Shield Library
 
 [![CI](https://github.com/perc-sw/analog_shield_lib/actions/workflows/ci.yml/badge.svg)](https://github.com/perc-sw/analog_shield_lib/actions/workflows/ci.yml)
+[![Version](https://img.shields.io/github/v/release/perc-sw/analog_shield_lib?include_prereleases&sort=semver&label=version)](https://github.com/perc-sw/analog_shield_lib/releases)
 ![Licence](https://img.shields.io/badge/licence-GPL--3.0-blue)
 
 Arduino library and examples for the [Analog Shield](https://github.com/perc-sw/analog_shield)
