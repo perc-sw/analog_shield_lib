@@ -1,0 +1,62 @@
+# Analog Shield Library
+
+[![CI](https://github.com/perc-sw/analog_shield_lib/actions/workflows/ci.yml/badge.svg)](https://github.com/perc-sw/analog_shield_lib/actions/workflows/ci.yml)
+![Licence](https://img.shields.io/badge/licence-GPL--3.0-blue)
+
+Arduino library and examples for the [Analog Shield](https://github.com/perc-sw/analog_shield)
+used in the University of Toronto, Department of Physics,
+"[Introduction to Electronics](https://plrs.physics.utoronto.ca/course-listing/)" course.
+
+The library uses only the standard Arduino API. It is developed for the
+[Phyduino Pico](https://github.com/perc-sw/phyduino_pico) and also builds for the Arduino Uno.
+
+Documentation: <https://perc-sw.github.io/analog_shield_lib/>
+
+## Install
+
+Download the repository as a ZIP, then in the Arduino IDE use
+**Sketch → Include Library → Add .ZIP Library…**.
+Examples appear under **File → Examples → AnalogShield**.
+
+## Pin map
+
+| Pin | Name | Signal |
+|---|---|---|
+| A0 | `TEMP_SIG_MCU` | Conditioned temperature signal (JP2 → MCU ADC) |
+| A1 | `SENSOR_IN` | Raw temperature sensor (JP1 selects on-board U1 or external J1) |
+| A3 | `TEMP_SIG_EXT` | Conditioned temperature signal (JP2 → external ADC) |
+| A4 | `IR_VOUT` | Sharp GP2Y0A21YK0F IR distance sensor (J2) |
+| A5 | `POT` | Potentiometer RV1 |
+| 2 | `ENC_SW` | Rotary encoder switch, active low |
+| 3 | `ENC_A` | Rotary encoder A, active low |
+| 4 | `ENC_B` | Rotary encoder B, active low |
+| 5 | `LED2` | Red LED D2, active low |
+| 6 | `LED1` | Green LED D1, active low |
+
+Set JP3 (VDD) to 3.3 V when using a 3.3 V board such as the Phyduino Pico.
+
+## Repository layout
+
+```
+library.properties   Arduino library metadata
+keywords.txt         IDE syntax colouring
+src/                 Library source
+examples/            Example sketches (each compiled by CI)
+tests/               PC-side unit tests (doctest + fake Arduino API)
+CMakeLists.txt       CMake project: library target and tests (not used by the Arduino IDE)
+docs/                GitHub Pages site (reference material)
+.github/workflows/   CI
+```
+
+## Tests
+
+PC-side unit tests compile the real `src/` code against a fake `Arduino.h`
+(`tests/fake_arduino/`) that records pin modes and levels. From the repo root:
+
+```
+cmake --workflow --preset host-tests
+```
+
+Needs a C++17 compiler (GCC or Clang; on Windows, MSYS2 UCRT64), CMake 3.21 or later, Ninja
+and internet access the first time (doctest is downloaded at configure time).
+Add tests as `tests/test_*.cpp`; they are picked up automatically.

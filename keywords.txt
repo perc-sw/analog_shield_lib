@@ -1,0 +1,20 @@
+# Syntax colouring for the Arduino IDE (fields are tab-separated)
+
+# Datatypes (KEYWORD1)
+AnalogShield	KEYWORD1
+AnalogShieldPins	KEYWORD1
+
+# Methods and functions (KEYWORD2)
+begin	KEYWORD2
+
+# Constants (LITERAL1)
+TEMP_SIG_MCU	LITERAL1
+SENSOR_IN	LITERAL1
+TEMP_SIG_EXT	LITERAL1
+IR_VOUT	LITERAL1
+POT	LITERAL1
+ENC_SW	LITERAL1
+ENC_A	LITERAL1
+ENC_B	LITERAL1
+LED1	LITERAL1
+LED2	LITERAL1

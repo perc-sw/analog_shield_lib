@@ -1,0 +1,50 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "host-tests",
+      "displayName": "PC-side unit tests (fake Arduino API)",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "ANALOG_SHIELD_HOST_TESTS": "ON",
+        "ANALOG_SHIELD_WERROR": "ON",
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "host-tests",
+      "configurePreset": "host-tests"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "host-tests",
+      "configurePreset": "host-tests",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "host-tests",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "host-tests"
+        },
+        {
+          "type": "build",
+          "name": "host-tests"
+        },
+        {
+          "type": "test",
+          "name": "host-tests"
+        }
+      ]
+    }
+  ]
+}

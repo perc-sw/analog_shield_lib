@@ -1,0 +1,70 @@
+# On each push / pull request:
+#   lint     - arduino-lint checks the library layout and library.properties
+#   compile  - every sketch in examples/ through arduino-cli, once per board
+#   host-tests - PC-side unit tests (tests/) against a fake Arduino API
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04  # pinned; change deliberately
+    steps:
+      - uses: actions/checkout@v7
+      - uses: arduino/arduino-lint-action@v2
+        with:
+          library-manager: submit
+          compliance: strict
+
+  compile:
+    runs-on: ubuntu-24.04  # pinned; change deliberately
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - fqbn: arduino:avr:uno
+            core: arduino:avr
+          - fqbn: arduino:renesas_uno:minima
+            core: arduino:renesas_uno
+          # Enable once phyduino_bsp v0.1.0 is published and the repository is public:
+          # - fqbn: phyduino:rp2:phyduino_pico
+          #   core: phyduino:rp2
+          #   url: https://github.com/perc-sw/phyduino_bsp/releases/latest/download/package_phyduino_index.json
+    steps:
+      - uses: actions/checkout@v7
+
+      # Direct download rather than arduino/setup-arduino-cli (same as phyduino_bsp)
+      - name: Install arduino-cli
+        run: |
+          curl -sSL -o arduino-cli.tar.gz \
+            https://github.com/arduino/arduino-cli/releases/download/v1.5.1/arduino-cli_1.5.1_Linux_64bit.tar.gz
+          mkdir -p "$RUNNER_TEMP/arduino-cli"
+          tar -xzf arduino-cli.tar.gz -C "$RUNNER_TEMP/arduino-cli" arduino-cli
+          echo "$RUNNER_TEMP/arduino-cli" >> "$GITHUB_PATH"
+
+      - name: Install core ${{ matrix.core }}
+        run: |
+          URL_ARG=${{ matrix.url && format('--additional-urls {0}', matrix.url) || '' }}
+          arduino-cli core update-index $URL_ARG
+          arduino-cli core install ${{ matrix.core }} $URL_ARG
+
+      - name: Compile examples
+        run: |
+          status=0
+          for sketch in examples/*/; do
+            echo "::group::$sketch"
+            arduino-cli compile --fqbn ${{ matrix.fqbn }} --library . --warnings all "$sketch" || status=1
+            echo "::endgroup::"
+          done
+          exit $status
+
+  host-tests:
+    runs-on: ubuntu-24.04  # pinned; change deliberately
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install Ninja
+        run: sudo apt-get install -y ninja-build
+      - name: PC-side unit tests
+        run: cmake --workflow --preset host-tests
