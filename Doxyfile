@@ -1,0 +1,43 @@
+# Doxygen API documentation for the library. From the repo root:
+#
+#   doxygen
+#
+# CI (.github/workflows/docs.yml) runs this with Doxygen 1.17.0, warnings as
+# errors, and publishes docs/ to GitHub Pages; docs/wiki/ is git-ignored.
+#
+# HTML only, to docs/wiki/index.html. Settings not listed here use Doxygen's
+# defaults.
+
+PROJECT_NAME           = "Analog Shield Library"
+# Keep equal to version= in library.properties
+PROJECT_NUMBER         = 0.1.0
+PROJECT_BRIEF          = "U of T Physics Analog Shield (Introduction to Electronics)"
+OUTPUT_DIRECTORY       = docs
+HTML_OUTPUT            = wiki
+
+INPUT                  = src README.md
+USE_MDFILE_AS_MAINPAGE = README.md
+EXAMPLE_PATH           = examples
+EXAMPLE_RECURSIVE      = YES
+
+EXTRACT_PRIVATE        = NO
+WARN_IF_UNDOCUMENTED   = YES
+WARN_NO_PARAMDOC       = YES
+
+GENERATE_HTML          = YES
+
+# Site header, breadcrumb, footer and colours from docs/index.html. Light only
+# (the site has no dark mode). The side tree is restyled in uoft_doxygen.css so
+# the whole page scrolls like the site, and is hidden on mobile.
+HTML_HEADER            = extras/doxygen/header.html
+HTML_FOOTER            = extras/doxygen/footer.html
+HTML_EXTRA_STYLESHEET  = extras/doxygen/uoft_doxygen.css
+HTML_EXTRA_FILES       = docs/images/uoft_physics_plrs_logo.png
+HTML_COLORSTYLE        = LIGHT
+GENERATE_TREEVIEW      = YES
+
+GENERATE_LATEX         = NO
+GENERATE_RTF           = NO
+GENERATE_MAN           = NO
+GENERATE_XML           = NO
+GENERATE_DOCBOOK       = NO

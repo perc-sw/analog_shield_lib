@@ -1,0 +1,7 @@
+# Google C++ style: https://google.github.io/styleguide/cppguide.html
+# Run from the repo root: clang-format -i src/*.h src/*.cpp tests/*.h tests/*.cpp tests/fake_arduino/*
+---
+Language: Cpp
+BasedOnStyle: Google
+ColumnLimit: 120
+...
