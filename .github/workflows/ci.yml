@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-24.04  # pinned; change deliberately
     steps:
       - uses: actions/checkout@v7
-      - uses: arduino/arduino-lint-action@v2
+      - uses: arduino/arduino-lint-action@v3
         with:
           library-manager: submit
           # "specification" while the repository is private: at "strict", rule LP042
