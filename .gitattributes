@@ -16,3 +16,6 @@
 /docs               export-ignore
 /extras             export-ignore
 /Doxyfile           export-ignore
+
+# Shell scripts keep LF so bash can run them after a Windows checkout
+*.sh  text eol=lf

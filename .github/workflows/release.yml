@@ -1,0 +1,45 @@
+# Attaches the Arduino library ZIP (extras/make-zip.sh) to each published release.
+# The release tag must match library.properties: tag v1.2.3 (or 1.2.3) needs
+# version=1.2.3, so the ZIP name and the Library Manager version agree.
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  zip:
+    runs-on: ubuntu-24.04  # pinned; change deliberately
+    permissions:
+      contents: write  # gh release upload
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Check tag matches library.properties version
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          version="$(sed -n 's/^version=//p' library.properties | tr -d '\r')"
+          if [ "${TAG#v}" != "$version" ]; then
+            echo "::error::Tag $TAG does not match library.properties version=$version"
+            exit 1
+          fi
+
+      - name: Build library ZIP
+        id: zip
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: echo "path=$(bash extras/make-zip.sh "$TAG" "$RUNNER_TEMP")" >> "$GITHUB_OUTPUT"
+
+      # --clobber replaces the asset if the workflow is re-run
+      - name: Attach ZIP to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+          ZIP: ${{ steps.zip.outputs.path }}
+        run: gh release upload "$TAG" "$ZIP" --clobber

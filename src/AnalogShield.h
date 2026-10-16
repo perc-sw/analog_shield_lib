@@ -2,7 +2,7 @@
  * @file AnalogShield.h
  * @brief Library for the U of T Physics Analog Shield (Introduction to Electronics).
  *
- * Hardware reference: https://github.com/perc-sw/analog_shield
+ * Hardware reference: https://perc-sw.github.io/analog_shield/
  *
  * Pins use Arduino names (A0, 2, ...), never MCU GPIO numbers, so the library
  * works on any Uno-style board (Phyduino Pico, Uno R3/R4).

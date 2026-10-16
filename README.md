@@ -17,9 +17,13 @@ Documentation: <https://perc-sw.github.io/analog_shield_lib/>
 
 ## Install
 
-Download the repository as a ZIP, then in the Arduino IDE use
+Download `AnalogShield-<version>.zip` from the latest
+[release](https://github.com/perc-sw/analog_shield_lib/releases/latest), then in the Arduino IDE use
 **Sketch → Include Library → Add .ZIP Library…**.
 Examples appear under **File → Examples → AnalogShield**.
+
+To build the ZIP from a local checkout, run `extras/make-zip.sh` (writes `build/AnalogShield-<version>.zip`
+from the last commit; pass a tag or commit to package that instead).
 
 ## Pin map
 
