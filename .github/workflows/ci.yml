@@ -1,7 +1,10 @@
 # On each push / pull request:
-#   lint     - arduino-lint checks the library layout and library.properties
+#   lint     - arduino-lint checks the library layout and library.properties, and the
+#              version in AnalogShield.h and the Doxyfile matches library.properties
 #   compile  - every sketch in examples/ through arduino-cli, once per board
 #   host-tests - PC-side unit tests (tests/) against a fake Arduino API
+#   package  - library ZIP for this build, kept 30 days as a workflow artifact named
+#              AnalogShield-<version>+<run number>.<commit>.zip
 name: CI
 
 on:
@@ -20,6 +23,26 @@ jobs:
           # fails because the library.properties url returns 404 without a login.
           # Set back to "strict" once the repository is public.
           compliance: specification
+
+      - name: Check version numbers match library.properties
+        run: |
+          version="$(sed -n 's/^version=//p' library.properties | tr -d '\r')"
+          header="src/AnalogShield.h"
+          define() { sed -n "s/^#define $1 \([^ ]*\).*/\1/p" "$header" | tr -d '"\r'; }
+          core="${version%%[-+]*}"  # 0.1.1-rc.1 -> 0.1.1
+          status=0
+          check() {  # name, found, expected
+            if [ "$2" != "$3" ]; then
+              echo "::error::$1 is '$2', expected '$3' (library.properties version=$version)"
+              status=1
+            fi
+          }
+          check ANALOG_SHIELD_VERSION "$(define ANALOG_SHIELD_VERSION)" "$version"
+          check "ANALOG_SHIELD_VERSION_MAJOR.MINOR.PATCH" \
+            "$(define ANALOG_SHIELD_VERSION_MAJOR).$(define ANALOG_SHIELD_VERSION_MINOR).$(define ANALOG_SHIELD_VERSION_PATCH)" \
+            "$core"
+          check "Doxyfile PROJECT_NUMBER" "$(sed -n 's/^PROJECT_NUMBER *= *//p' Doxyfile | tr -d '\r')" "$version"
+          exit $status
 
   compile:
     runs-on: ubuntu-24.04  # pinned; change deliberately
@@ -99,3 +122,28 @@ jobs:
         run: sudo apt-get install -y ninja-build
       - name: PC-side unit tests
         run: cmake --workflow --preset host-tests
+
+  package:
+    runs-on: ubuntu-24.04  # pinned; change deliberately
+    steps:
+      # For a pull request, package the branch head rather than the test merge commit,
+      # so the commit in the file name can be found in the branch history
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Build library ZIP
+        id: zip
+        run: |
+          zip_path="$(bash extras/make-zip.sh HEAD "$RUNNER_TEMP")"
+          build_path="${zip_path%.zip}+${GITHUB_RUN_NUMBER}.$(git rev-parse --short HEAD).zip"
+          mv "$zip_path" "$build_path"
+          echo "path=$build_path" >> "$GITHUB_OUTPUT"
+
+      # archive: false uploads the ZIP itself, so the download is not a ZIP inside a ZIP
+      - uses: actions/upload-artifact@v7
+        with:
+          path: ${{ steps.zip.outputs.path }}
+          archive: false
+          retention-days: 30
+          if-no-files-found: error

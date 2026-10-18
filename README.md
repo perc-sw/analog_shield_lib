@@ -25,6 +25,20 @@ Examples appear under **File → Examples → AnalogShield**.
 To build the ZIP from a local checkout, run `extras/make-zip.sh` (writes `build/AnalogShield-<version>.zip`
 from the last commit; pass a tag or commit to package that instead).
 
+Every CI run also keeps a ZIP of that build for 30 days, as a workflow artifact named
+`AnalogShield-<version>+<run number>.<commit>.zip` (open the run under **Actions**, then **Artifacts**).
+Use it to try a change before it is released.
+
+## Versions
+
+Releases use `MAJOR.MINOR.PATCH` (for example `0.1.0`), with `-rc.N` for release candidates
+(for example `0.1.1-rc.1`). A sketch can check the installed version with `ANALOG_SHIELD_VERSION`
+(the full string) or `ANALOG_SHIELD_VERSION_MAJOR`, `_MINOR` and `_PATCH`.
+
+To release, set the same version in `library.properties`, `ANALOG_SHIELD_VERSION` and its parts in
+`src/AnalogShield.h`, and `PROJECT_NUMBER` in `Doxyfile` (CI checks they match), add a `CHANGELOG.md`
+section, then publish a GitHub release tagged `v<version>`. The release workflow attaches the library ZIP.
+
 ## Examples
 
 Open them from **File → Examples → AnalogShield**. Each sketch's header comment lists the jumper

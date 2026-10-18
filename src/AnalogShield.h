@@ -11,6 +11,15 @@
 
 #include <Arduino.h>
 
+/// @name Library version
+/// Keep equal to version= in library.properties; CI checks that they match.
+/// @{
+#define ANALOG_SHIELD_VERSION "0.1.0"  ///< Full version, as in library.properties (may carry a suffix such as "-rc.1")
+#define ANALOG_SHIELD_VERSION_MAJOR 0  ///< Major version: incompatible API changes
+#define ANALOG_SHIELD_VERSION_MINOR 1  ///< Minor version: new features, compatible
+#define ANALOG_SHIELD_VERSION_PATCH 0  ///< Patch version: fixes only
+/// @}
+
 /**
  * @brief Shield signals by Arduino pin, from the Rev-C schematic.
  */

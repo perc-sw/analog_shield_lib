@@ -31,7 +31,10 @@ v0.1.0-alpha.1 or later); also builds for the Arduino Uno R3 and Uno R4 Minima.
 - Doxygen API reference with formatted example pages, published with the `docs/` site to GitHub
   Pages.
 - Library ZIP (`extras/make-zip.sh`), attached to each GitHub release by
-  `.github/workflows/release.yml`.
+  `.github/workflows/release.yml`; every CI run also keeps a ZIP of that build as a workflow
+  artifact (`AnalogShield-<version>+<run number>.<commit>.zip`).
+- `ANALOG_SHIELD_VERSION` and `ANALOG_SHIELD_VERSION_MAJOR` / `_MINOR` / `_PATCH`, checked by CI
+  against `library.properties` and the `Doxyfile`.
 - CMake project (`CMakeLists.txt`, `CMakePresets.json`) and PC-side unit tests
   (`tests/`, doctest against a fake Arduino API).
 
