@@ -25,6 +25,21 @@ Examples appear under **File → Examples → AnalogShield**.
 To build the ZIP from a local checkout, run `extras/make-zip.sh` (writes `build/AnalogShield-<version>.zip`
 from the last commit; pass a tag or commit to package that instead).
 
+## Examples
+
+Open them from **File → Examples → AnalogShield**. Each sketch's header comment lists the jumper
+settings it needs and what it prints.
+
+| Example | Shows | Output |
+|---|---|---|
+| `EncoderPolling` | Reading the encoder count and switch from `loop()` | Serial Monitor |
+| `EncoderInterrupt` | The same, with encoder and switch callbacks | Serial Monitor |
+| `Temperature` | LMT84 temperature as an ADC reading, mV, °C, °F and K | Serial Monitor |
+| `SerialPlotter` | Encoder, potentiometer and temperatures live; the switch selects the MCU or EXT channel, shown on D1/D2 | Serial Plotter |
+| `LedFade` | Fading D1 and D2 in and out with PWM (`analogWrite()`) | LEDs only |
+
+Examples that print use 115200 baud.
+
 ## Pin map
 
 | Pin | Name | Signal |

@@ -1,0 +1,148 @@
+/*
+ * Registers the sketches in examples/ for the Doxygen Examples page, with the
+ * formatted description shown above each sketch's source. Doxygen does not
+ * read comments in the sketches themselves, so keep each block here in step
+ * with that sketch's header comment and with the Examples table in README.md.
+ */
+
+/**
+ * @example EncoderPolling.ino
+ * Reads the rotary encoder and its push switch from `loop()`. Prints the count
+ * when the knob turns, and toggles the green LED (D1) on each press.
+ *
+ * The library still counts encoder steps in the background; `loop()` just
+ * checks AnalogShield::EncoderCount() and AnalogShield::SwitchPressed()
+ * whenever it runs. Compare with EncoderInterrupt.ino, which reacts to the
+ * same events with callbacks.
+ *
+ * @par Jumpers
+ * JP3 at 3.3 V.
+ *
+ * @par Output
+ * Serial Monitor at 115200 baud, for example:
+ * @code{.unparsed}
+ * Count: 4
+ * Pressed at count 4
+ * @endcode
+ * The count changes by 2 per click (AnalogShield::COUNTS_PER_DETENT).
+ *
+ * @note The switch is not debounced, so a press can occasionally be seen twice
+ *       and toggle D1 back off. SerialPlotter.ino shows one way to debounce it.
+ */
+
+/**
+ * @example EncoderInterrupt.ino
+ * Uses callbacks for the rotary encoder and its push switch. The callbacks run
+ * inside the interrupt, so they only record what happened; `loop()` does the
+ * printing. Prints the count when the knob turns, toggles the green LED (D1)
+ * on each press and lights the red LED (D2) while the switch is held.
+ *
+ * The callbacks are set with AnalogShield::SetEncoderCallback() and
+ * AnalogShield::SetSwitchCallback(). Compare with EncoderPolling.ino, which
+ * checks the same inputs from `loop()`.
+ *
+ * @par Jumpers
+ * JP3 at 3.3 V.
+ *
+ * @par Output
+ * Serial Monitor at 115200 baud, for example:
+ * @code{.unparsed}
+ * Count: 4
+ * Pressed at count 4
+ * @endcode
+ * The count changes by 2 per click (AnalogShield::COUNTS_PER_DETENT).
+ *
+ * @note The switch is not debounced, so a press can occasionally be seen twice
+ *       and toggle D1 back off. SerialPlotter.ino shows one way to debounce it.
+ */
+
+/**
+ * @example Temperature.ino
+ * Reads the on-board LMT84 temperature sensor once a second and prints the ADC
+ * reading, the signal voltage and the temperature in °C, °F and K, using
+ * AnalogShield::TempRaw(), AnalogShield::TempMillivolts(),
+ * AnalogShield::TempCelsius(), AnalogShield::TempFahrenheit() and
+ * AnalogShield::TempKelvin().
+ *
+ * @par Jumpers
+ * JP1 at U1 (on-board sensor), JP2 at "MCU ADC", JP3 at 3.3 V.
+ *
+ * @par Output
+ * Serial Monitor at 115200 baud, for example:
+ * @code{.unparsed}
+ * Raw: 1675  1350 mV  22.4 °C  72.3 °F  295.6 K
+ * @endcode
+ *
+ * @par Notes
+ * - Change `SOURCE` to TempSource::SENSOR to read the sensor before the
+ *   conditioning stage.
+ * - TempSource::EXT is meant for an external ADC: on the board's 3.3 V ADC it
+ *   only reads above about 21 °C.
+ * - Each reading averages `SAMPLES` ADC reads at 12-bit resolution (10 bits on
+ *   an Uno R3), which steadies the value. Every column is its own reading, so
+ *   they can differ slightly.
+ */
+
+/**
+ * @example SerialPlotter.ino
+ * Streams the encoder, potentiometer and temperature readings to the Arduino
+ * IDE Serial Plotter every 200 ms. The encoder switch selects which
+ * conditioned temperature channel is read, MCU or EXT.
+ *
+ * @par Jumpers
+ * JP1 at U1 (on-board sensor), JP2 at "MCU ADC", JP3 at 3.3 V.
+ *
+ * @par Output
+ * Tools → Serial Plotter at 115200 baud, one line per sample:
+ *
+ * | Label | Value |
+ * |---|---|
+ * | `Encoder` | Encoder count, 2 per click (AnalogShield::EncoderCount()) |
+ * | `Potentiometer` | RV1 wiper voltage, in V |
+ * | `Sensor` | Raw LMT84 sensor (`SENSOR_IN`, A1), in °C |
+ * | `Temperature` | Conditioned signal on the selected channel, in °C |
+ * | `Switch` | Selected channel, -1 for MCU, 1 for EXT |
+ *
+ * For example:
+ * @code{.unparsed}
+ * Encoder:12,Potentiometer:1.650,Sensor:22.41,Temperature:22.37,Switch:-1
+ * @endcode
+ *
+ * @par Channel selection
+ * Each press of the encoder switch changes the channel; the switch is
+ * debounced in `onSwitch()`. The LED for the selected channel flashes, 500 ms
+ * on and 500 ms off:
+ *
+ * | Channel | Pin | LED | `Switch` |
+ * |---|---|---|---|
+ * | MCU | `TEMP_SIG_MCU`, A0 | Green D1 | -1 |
+ * | EXT | `TEMP_SIG_EXT`, A3 | Red D2 | 1 |
+ *
+ * @par Notes
+ * - JP2 routes the conditioned signal to only one of A0 and A3, so move it to
+ *   "external ADC" when selecting EXT; the other channel reads an unconnected
+ *   pin.
+ * - EXT is meant for an external ADC: on the board's 3.3 V ADC it only reads
+ *   above about 21 °C.
+ * - Each reading averages `SAMPLES` ADC reads at 12-bit resolution (10 bits on
+ *   an Uno R3), which steadies the value.
+ */
+
+/**
+ * @example LedFade.ino
+ * Fades the green LED (D1) in and out with PWM while the red LED (D2) does the
+ * opposite, so one brightens as the other dims. One full cycle, in and out,
+ * takes about 2 s.
+ *
+ * @par Jumpers
+ * JP3 at 3.3 V.
+ *
+ * @par Output
+ * The LEDs only; nothing is printed.
+ *
+ * @par Notes
+ * Both LEDs are active low: the anode goes to VDD and the pin sinks the
+ * current, so a lower `analogWrite()` value gives a brighter LED.
+ * `setBrightness()` writes 255 - brightness, so 0 is off and 255 is full
+ * brightness.
+ */

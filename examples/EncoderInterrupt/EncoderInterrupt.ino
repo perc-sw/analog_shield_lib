@@ -3,7 +3,17 @@
  * Uses callbacks for the rotary encoder and its push switch. The callbacks
  * run inside the interrupt, so they only record what happened; loop() does
  * the printing. Prints the count when the knob turns, toggles the green LED
- * (LED1) on each press and lights the red LED (LED2) while the switch is held.
+ * (D1) on each press and lights the red LED (D2) while the switch is held.
+ * Compare with EncoderPolling, which checks the same inputs from loop().
+ *
+ * Jumpers: JP3 at 3.3 V.
+ * Output: Serial Monitor at 115200 baud, for example
+ *   Count: 4
+ *   Pressed at count 4
+ * The count changes by 2 per click (AnalogShield::COUNTS_PER_DETENT).
+ *
+ * The switch is not debounced, so a press can occasionally be seen twice and
+ * toggle D1 back off. SerialPlotter shows one way to debounce it.
  */
 #include <AnalogShield.h>
 

@@ -15,10 +15,13 @@ PROJECT_BRIEF          = "U of T Physics Analog Shield (Introduction to Electron
 OUTPUT_DIRECTORY       = docs
 HTML_OUTPUT            = wiki
 
-INPUT                  = src README.md
+INPUT                  = src README.md extras/doxygen/examples.dox
 USE_MDFILE_AS_MAINPAGE = README.md
 EXAMPLE_PATH           = examples
 EXAMPLE_RECURSIVE      = YES
+# Parse sketches as C++ so example code links to the API and each function
+# lists the examples that use it
+EXTENSION_MAPPING      = ino=C++
 
 EXTRACT_PRIVATE        = NO
 WARN_IF_UNDOCUMENTED   = YES

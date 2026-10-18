@@ -16,7 +16,7 @@ Format: one section per version, newest first.
 - `AnalogShield::SetAdcResolution()` / `AdcResolution()`: 8 to 12 bits; millivolt,
   temperature and potentiometer readings follow it.
 - Optional `samples` argument on every analog reading, to average several ADC reads.
-- `ShieldCheck` and `Temperature` examples.
+- `EncoderPolling`, `EncoderInterrupt`, `Temperature`, `SerialPlotter` and `LedFade` examples.
 - CI (`.github/workflows/ci.yml`) and GitHub Pages documentation (`docs/`).
 - CMake project (`CMakeLists.txt`, `CMakePresets.json`) and PC-side unit tests
   (`tests/`, doctest against a fake Arduino API).
