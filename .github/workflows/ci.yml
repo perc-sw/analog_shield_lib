@@ -26,31 +26,54 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Core versions are pinned: a restored cache keeps the installed version,
+        # so bump core_version (which also changes the cache key) to update.
         include:
           - fqbn: arduino:avr:uno
             core: arduino:avr
+            core_version: 1.8.8
           - fqbn: arduino:renesas_uno:minima
             core: arduino:renesas_uno
+            core_version: 1.6.0
           # Pinned to a pre-release: releases/latest skips pre-releases. Once
           # phyduino_bsp v0.1.0 is out, use .../releases/latest/download/package_phyduino_index.json
           - fqbn: phyduino:rp2:phyduino_pico
             core: phyduino:rp2
+            core_version: 0.1.0-alpha.1
             url: https://github.com/perc-sw/phyduino_bsp/releases/download/v0.1.0-alpha.1/package_phyduino_index.json
+    env:
+      ARDUINO_CLI_VERSION: 1.5.1
     steps:
       - uses: actions/checkout@v7
 
+      # arduino-cli and the installed core with its toolchain (the large download).
+      # staging/ only holds the downloaded archives, so it is left out.
+      - name: Cache arduino-cli and core
+        id: cache
+        uses: actions/cache@v6
+        with:
+          path: |
+            ${{ runner.temp }}/arduino-cli
+            ~/.arduino15
+            !~/.arduino15/staging
+          key: arduino-${{ runner.os }}-cli${{ env.ARDUINO_CLI_VERSION }}-${{ matrix.core }}@${{ matrix.core_version }}
+
       # Direct download rather than arduino/setup-arduino-cli (same as phyduino_bsp)
       - name: Install arduino-cli
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           curl -sSL -o arduino-cli.tar.gz \
-            https://github.com/arduino/arduino-cli/releases/download/v1.5.1/arduino-cli_1.5.1_Linux_64bit.tar.gz
+            "https://github.com/arduino/arduino-cli/releases/download/v${ARDUINO_CLI_VERSION}/arduino-cli_${ARDUINO_CLI_VERSION}_Linux_64bit.tar.gz"
           mkdir -p "$RUNNER_TEMP/arduino-cli"
           tar -xzf arduino-cli.tar.gz -C "$RUNNER_TEMP/arduino-cli" arduino-cli
-          echo "$RUNNER_TEMP/arduino-cli" >> "$GITHUB_PATH"
 
-      - name: Install core ${{ matrix.core }}
+      - name: Add arduino-cli to PATH
+        run: echo "$RUNNER_TEMP/arduino-cli" >> "$GITHUB_PATH"
+
+      # On a cache hit the core is already installed and this only refreshes the index
+      - name: Install core ${{ matrix.core }}@${{ matrix.core_version }}
         env:
-          CORE: ${{ matrix.core }}
+          CORE: ${{ matrix.core }}@${{ matrix.core_version }}
           BOARD_URL: ${{ matrix.url }}
         run: |
           url_args=()

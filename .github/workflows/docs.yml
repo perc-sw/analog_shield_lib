@@ -35,15 +35,25 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # Only the downloaded archive is cached; its checksum is still checked every run
+      - name: Cache Doxygen archive
+        uses: actions/cache@v6
+        with:
+          path: ${{ runner.temp }}/doxygen-download
+          key: doxygen-${{ runner.os }}-${{ env.DOXYGEN_VERSION }}-${{ env.DOXYGEN_SHA256 }}
+
       # Release binary rather than apt: Ubuntu packages an older Doxygen
       - name: Install Doxygen ${{ env.DOXYGEN_VERSION }}
         run: |
           tag="Release_${DOXYGEN_VERSION//./_}"
-          archive="doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz"
-          curl -sSfL -o "$RUNNER_TEMP/$archive" \
-            "https://github.com/doxygen/doxygen/releases/download/$tag/$archive"
-          echo "$DOXYGEN_SHA256  $RUNNER_TEMP/$archive" | sha256sum --check --strict
-          tar -xzf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP"
+          archive="$RUNNER_TEMP/doxygen-download/doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz"
+          if [ ! -f "$archive" ]; then
+            mkdir -p "$RUNNER_TEMP/doxygen-download"
+            curl -sSfL -o "$archive" \
+              "https://github.com/doxygen/doxygen/releases/download/$tag/$(basename "$archive")"
+          fi
+          echo "$DOXYGEN_SHA256  $archive" | sha256sum --check --strict
+          tar -xzf "$archive" -C "$RUNNER_TEMP"
           echo "$RUNNER_TEMP/doxygen-${DOXYGEN_VERSION}/bin" >> "$GITHUB_PATH"
 
       # Same Doxyfile as a local run, with warnings (e.g. undocumented API) as errors
