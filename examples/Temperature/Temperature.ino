@@ -18,8 +18,8 @@
 
 AnalogShield Shield;
 
-const TempSource SOURCE = TempSource::MCU;
-const uint8_t SAMPLES = 16;
+constexpr TempSource SOURCE = TempSource::MCU;
+constexpr uint8_t SAMPLES = 16;
 
 void setup() {
   Serial.begin(115200);
