@@ -97,6 +97,6 @@ void loop() {
     Serial.print(",Temperature:");
     Serial.print(Shield.TempCelsius(channel, SAMPLES), 2);
     Serial.print(",Switch:");
-    Serial.println(ext ? 1 : -1);
+    Serial.println(ext ? 3 : 0);    // Output selected channel.
   }
 }
