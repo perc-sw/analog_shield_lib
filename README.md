@@ -63,11 +63,11 @@ Examples that print use 115200 baud.
 | A3 | `TEMP_SIG_EXT` | Conditioned temperature signal (JP2 → external ADC) |
 | A4 | `IR_VOUT` | Sharp GP2Y0A21YK0F IR distance sensor (J2) |
 | A5 | `POT` | Potentiometer RV1 |
-| 2 | `ENC_SW` | Rotary encoder switch, active low |
-| 3 | `ENC_A` | Rotary encoder A, active low |
-| 4 | `ENC_B` | Rotary encoder B, active low |
-| 5 | `LED2` | Red LED D2, active low |
-| 6 | `LED1` | Green LED D1, active low |
+| D2 | `ENC_SW` | Rotary encoder switch, active low |
+| D3 | `ENC_A` | Rotary encoder A, active low |
+| D4 | `ENC_B` | Rotary encoder B, active low |
+| D5 | `LED2` | Red LED (silkscreen D2), active low |
+| D6 | `LED1` | Green LED (silkscreen D1), active low |
 
 Set JP3 (VDD) to 3.3 V when using a 3.3 V board such as the Phyduino Pico.
 
