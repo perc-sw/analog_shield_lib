@@ -8,9 +8,10 @@ Arduino library and examples for the [Analog Shield](https://github.com/perc-sw/
 used in the University of Toronto, Department of Physics,
 "[Introduction to Electronics](https://perc-sw.github.io/intro_to_electronics/)" course.
 
-The library uses only the standard Arduino API. It is developed for the
+The library uses only the standard Arduino API, plus `analogFullScaleMillivolts()` on the
+Phyduino Pico. It is developed for the
 [Phyduino Pico](https://github.com/perc-sw/phyduino_pico) (board package
-[phyduino_bsp](https://github.com/perc-sw/phyduino_bsp) v0.1.0-alpha.1 or later) and also builds
+[phyduino_bsp](https://github.com/perc-sw/phyduino_bsp) v0.1.0-rc.2 or later) and also builds
 for the Arduino Uno.
 
 Documentation: <https://perc-sw.github.io/analog_shield_lib/>

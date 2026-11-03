@@ -4,6 +4,10 @@ Format: one section per version, newest first.
 
 ## Unreleased
 
+### Changed
+- Phyduino Pico builds now need phyduino_bsp v0.1.0-rc.2 or later, for
+  `analogFullScaleMillivolts()`.
+
 ### Fixed
 - `TempCelsius()` (and `TempFahrenheit()` / `TempKelvin()`) on `TempSource::EXT` left out the
   R15 / 10K divider, so readings came out far too hot. A3 carries the same divided signal as A0

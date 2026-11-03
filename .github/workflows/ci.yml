@@ -62,8 +62,8 @@ jobs:
           # phyduino_bsp v0.1.0 is out, use .../releases/latest/download/package_phyduino_index.json
           - fqbn: phyduino:rp2:phyduino_pico
             core: phyduino:rp2
-            core_version: 0.1.0-alpha.1
-            url: https://github.com/perc-sw/phyduino_bsp/releases/download/v0.1.0-alpha.1/package_phyduino_index.json
+            core_version: 0.1.0-rc.2
+            url: https://github.com/perc-sw/phyduino_bsp/releases/download/v0.1.0-rc.2/package_phyduino_index.json
     env:
       ARDUINO_CLI_VERSION: 1.5.1
     steps:
