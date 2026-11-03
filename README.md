@@ -6,7 +6,7 @@
 
 Arduino library and examples for the [Analog Shield](https://github.com/perc-sw/analog_shield)
 used in the University of Toronto, Department of Physics,
-"[Introduction to Electronics](https://plrs.physics.utoronto.ca/course-listing/)" course.
+"[Introduction to Electronics](https://perc-sw.github.io/intro_to_electronics/)" course.
 
 The library uses only the standard Arduino API. It is developed for the
 [Phyduino Pico](https://github.com/perc-sw/phyduino_pico) (board package
