@@ -41,6 +41,8 @@ void digitalWrite(pin_size_t pin, uint8_t value);
 int digitalRead(pin_size_t pin);
 int analogRead(pin_size_t pin);
 void analogReadResolution(int bits);
+// Phyduino Pico core: 3300 on A0-A2 (RP2040 ADC), 2048 on A3-A5 (MAX11635), 0 otherwise
+uint32_t analogFullScaleMillivolts(pin_size_t pin);
 
 void noInterrupts();
 void interrupts();

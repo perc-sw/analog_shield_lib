@@ -8,9 +8,9 @@ using namespace AnalogShieldPins;
 
 TEST_CASE_FIXTURE(HostTest, "PotRaw() and PotMillivolts() read the POT pin") {
   AnalogShield shield;
-  fake::pins[POT].analog_value = 310;
-  CHECK(shield.PotRaw() == 310);
-  CHECK(shield.PotMillivolts() == 1000);  // 310 * 3300 / 1023 = 1000.0
+  fake::pins[POT].analog_value = 500;
+  CHECK(shield.PotRaw() == 500);
+  CHECK(shield.PotMillivolts() == 1001);  // A5 is 2.048 V full scale: 500 * 2048 / 1023 = 1001.0
 }
 
 TEST_CASE_FIXTURE(HostTest, "PotPercent() spans 0 to 100 at any resolution") {
@@ -25,5 +25,5 @@ TEST_CASE_FIXTURE(HostTest, "PotPercent() spans 0 to 100 at any resolution") {
   REQUIRE(shield.SetAdcResolution(12));
   fake::pins[POT].analog_value = 4095;
   CHECK(shield.PotPercent() == doctest::Approx(100.0));
-  CHECK(shield.PotMillivolts() == 3300);
+  CHECK(shield.PotMillivolts() == 2048);
 }

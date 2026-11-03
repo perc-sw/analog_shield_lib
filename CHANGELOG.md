@@ -2,6 +2,19 @@
 
 Format: one section per version, newest first.
 
+## Unreleased
+
+### Fixed
+- `TempCelsius()` (and `TempFahrenheit()` / `TempKelvin()`) on `TempSource::EXT` left out the
+  R15 / 10K divider, so readings came out far too hot. A3 carries the same divided signal as A0
+  (61.7 mV to 2.039 V), so EXT now undoes the same signal path as MCU and reads the full sensor
+  range.
+- Millivolt and temperature readings on the Phyduino Pico now use each pin's full scale from the
+  core (`analogFullScaleMillivolts()`): 3.3 V on A0-A2 (RP2040 ADC) and 2.048 V on A3-A5
+  (MAX11635). `TempMillivolts(TempSource::EXT)` and `PotMillivolts()` were 1.61 times too high.
+  Other boards still assume 3.3 V.
+- SerialPlotter documentation: the last value is `Channel` (0 for A0, 3 for A3), not `Switch`.
+
 ## v0.1.0 (2026-10-17)
 
 First release, for the Analog Shield Rev-C. Developed for the Phyduino Pico (RP2040, phyduino_bsp

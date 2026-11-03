@@ -65,7 +65,7 @@
  * AnalogShield::TempKelvin().
  *
  * @par Jumpers
- * JP1 at U1 (on-board sensor), JP2 at "MCU ADC", JP3 at 3.3 V.
+ * JP1 at Internal (on-board U1), JP2 at Internal (RP2040 ADC), JP3 at 3.3 V.
  *
  * @par Output
  * Serial Monitor at 115200 baud, for example:
@@ -75,9 +75,8 @@
  *
  * @par Notes
  * - Change `SOURCE` to TempSource::SENSOR to read the sensor before the
- *   conditioning stage.
- * - TempSource::EXT is meant for an external ADC: on the board's 3.3 V ADC it
- *   only reads above about 21 °C.
+ *   conditioning stage, or to TempSource::EXT to read the conditioned signal
+ *   on A3 (move JP2 to External, the MAX11635 ADC).
  * - Each reading averages `SAMPLES` ADC reads at 12-bit resolution (10 bits on
  *   an Uno R3), which steadies the value. Every column is its own reading, so
  *   they can differ slightly.
@@ -90,7 +89,7 @@
  * conditioned temperature channel is read, MCU or EXT.
  *
  * @par Jumpers
- * JP1 at U1 (on-board sensor), JP2 at "MCU ADC", JP3 at 3.3 V.
+ * JP1 at Internal (on-board U1), JP2 at Internal (RP2040 ADC), JP3 at 3.3 V.
  *
  * @par Output
  * Tools → Serial Plotter at 115200 baud, one line per sample:
@@ -101,11 +100,11 @@
  * | `Potentiometer` | RV1 wiper voltage, in V |
  * | `Sensor` | Raw LMT84 sensor (`SENSOR_IN`, A1), in °C |
  * | `Temperature` | Conditioned signal on the selected channel, in °C |
- * | `Switch` | Selected channel, -1 for MCU, 1 for EXT |
+ * | `Channel` | Selected analog input, 0 for MCU (A0), 3 for EXT (A3) |
  *
  * For example:
  * @code{.unparsed}
- * Encoder:12,Potentiometer:1.650,Sensor:22.41,Temperature:22.37,Switch:-1
+ * Encoder:12,Potentiometer:1.650,Sensor:22.41,Temperature:22.37,Channel:0
  * @endcode
  *
  * @par Channel selection
@@ -113,17 +112,15 @@
  * debounced in `onSwitch()`. The LED for the selected channel flashes, 500 ms
  * on and 500 ms off:
  *
- * | Channel | Pin | LED | `Switch` |
+ * | Channel | Pin | LED | `Channel` |
  * |---|---|---|---|
- * | MCU | `TEMP_SIG_MCU`, A0 | Green D1 | -1 |
- * | EXT | `TEMP_SIG_EXT`, A3 | Red D2 | 1 |
+ * | MCU | `TEMP_SIG_MCU`, A0 | Green D1 | 0 |
+ * | EXT | `TEMP_SIG_EXT`, A3 | Red D2 | 3 |
  *
  * @par Notes
  * - JP2 routes the conditioned signal to only one of A0 and A3, so move it to
- *   "external ADC" when selecting EXT; the other channel reads an unconnected
+ *   External when selecting EXT; the other channel reads an unconnected
  *   pin.
- * - EXT is meant for an external ADC: on the board's 3.3 V ADC it only reads
- *   above about 21 °C.
  * - Each reading averages `SAMPLES` ADC reads at 12-bit resolution (10 bits on
  *   an Uno R3), which steadies the value.
  */

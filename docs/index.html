@@ -79,9 +79,9 @@
   <div class="ds-table-wrap">
     <table class="ds-table">
       <tbody>
-        <tr><td>A0</td><td><code>TEMP_SIG_MCU</code>: conditioned temperature signal (JP2 → MCU ADC)</td><td></td></tr>
-        <tr><td>A1</td><td><code>SENSOR_IN</code>: raw temperature sensor (JP1 selects on-board U1 or external J1)</td><td></td></tr>
-        <tr><td>A3</td><td><code>TEMP_SIG_EXT</code>: conditioned temperature signal (JP2 → external ADC)</td><td></td></tr>
+        <tr><td>A0</td><td><code>TEMP_SIG_MCU</code>: conditioned temperature signal (JP2 at Internal: RP2040 ADC)</td><td></td></tr>
+        <tr><td>A1</td><td><code>SENSOR_IN</code>: raw temperature sensor (JP1: Internal on-board U1 or External J1)</td><td></td></tr>
+        <tr><td>A3</td><td><code>TEMP_SIG_EXT</code>: conditioned temperature signal (JP2 at External: MAX11635 ADC on the Phyduino Pico)</td><td></td></tr>
         <tr><td>A4</td><td><code>IR_VOUT</code>: Sharp GP2Y0A21YK0F IR distance sensor (J2)</td><td></td></tr>
         <tr><td>A5</td><td><code>POT</code>: potentiometer RV1</td><td></td></tr>
         <tr><td>D2</td><td><code>ENC_SW</code>: rotary encoder switch, active low</td><td></td></tr>

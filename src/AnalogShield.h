@@ -28,9 +28,9 @@ namespace AnalogShieldPins {
 /// @name Analog header (J4)
 /// A2 is not connected.
 /// @{
-constexpr uint8_t TEMP_SIG_MCU = A0;  ///< Conditioned temperature signal, JP2 in "MCU ADC" position
-constexpr uint8_t SENSOR_IN = A1;     ///< Raw temperature sensor (JP1: on-board U1 or external J1)
-constexpr uint8_t TEMP_SIG_EXT = A3;  ///< Conditioned temperature signal, JP2 in "external ADC" position
+constexpr uint8_t TEMP_SIG_MCU = A0;  ///< Conditioned temperature signal, JP2 at Internal (RP2040 ADC)
+constexpr uint8_t SENSOR_IN = A1;     ///< Raw temperature sensor (JP1: Internal U1 or External J1)
+constexpr uint8_t TEMP_SIG_EXT = A3;  ///< Conditioned temperature signal, JP2 at External (MAX11635 ADC on the Phyduino Pico)
 constexpr uint8_t IR_VOUT = A4;       ///< Sharp GP2Y0A21YK0F IR distance sensor (J2)
 constexpr uint8_t POT = A5;           ///< Potentiometer RV1 wiper (0 V to VDD)
 /// @}
@@ -51,8 +51,8 @@ constexpr uint8_t LED1 = 6;    ///< D1 green LED, active low (anode to VDD)
  */
 enum class TempSource : uint8_t {
   SENSOR,  ///< Raw sensor output on SENSOR_IN (A1)
-  MCU,     ///< Conditioned and attenuated for the MCU ADC on TEMP_SIG_MCU (A0), JP2 in "MCU ADC"
-  EXT,     ///< Conditioned for an external ADC on TEMP_SIG_EXT (A3), JP2 in "external ADC"
+  MCU,     ///< Conditioned signal on TEMP_SIG_MCU (A0, RP2040 ADC), JP2 at Internal
+  EXT,     ///< Conditioned signal on TEMP_SIG_EXT (A3, MAX11635 external ADC on the Phyduino Pico), JP2 at External
 };
 
 /**
@@ -168,24 +168,27 @@ class AnalogShield {
    * @brief Reads the voltage of a temperature signal.
    * @param source Signal to read.
    * @param samples ADC reads to average.
-   * @return Voltage in mV, assuming a 3.3 V ADC reference (JP3 at 3.3 V).
+   * @return Voltage in mV. On the Phyduino Pico this uses the pin's own full
+   *         scale (3.3 V on A0-A2, 2.048 V on A3-A5); other boards assume
+   *         3.3 V (JP3 at 3.3 V).
    */
   [[nodiscard]] int32_t TempMillivolts(TempSource source, uint8_t samples = 1) const;
 
   /**
    * @brief Reads a temperature signal and converts it to degrees Celsius.
    *
-   * Undoes the shield's signal path for @p source (MCU attenuator, then the
-   * conditioning stage Vout = 4.3 Vin - 0.638 V), then applies the LMT84
+   * Undoes the shield's signal path for @p source (the R15 / 10K divider, then
+   * the conditioning stage Vout = 4.3 Vin - 0.638 V), then applies the LMT84
    * parabolic transfer function (datasheet Equation 2). Accurate over the
    * sensor's -50 to 150 °C range; outside it the result is extrapolated.
    *
    * @param source Signal to read.
    * @param samples ADC reads to average.
-   * @return Temperature in °C, assuming a 3.3 V ADC reference (JP3 at 3.3 V)
-   *         and the on-board LMT84 (JP1 at U1).
-   * @note TempSource::EXT swings up to 4.96 V for an external ADC. Read on the
-   *       3.3 V MCU ADC it saturates below about 21 °C.
+   * @return Temperature in °C, with the ADC full scale as for TempMillivolts().
+   * @note TempSource::MCU and TempSource::EXT span 61.7 mV to 2.039 V over the
+   *       sensor range, so both read the full range: EXT is within the
+   *       MAX11635's 2.048 V on the Phyduino Pico. Above a 1.3 V sensor input
+   *       (JP1 at External, J1) they clamp at about 2.05 V.
    */
   [[nodiscard]] float TempCelsius(TempSource source, uint8_t samples = 1) const;
 
@@ -215,7 +218,9 @@ class AnalogShield {
   /**
    * @brief Reads the potentiometer wiper voltage.
    * @param samples ADC reads to average.
-   * @return Voltage in mV, assuming a 3.3 V ADC reference (JP3 at 3.3 V).
+   * @return Voltage in mV. On the Phyduino Pico this uses the pin's own full
+   *         scale (3.3 V on A0-A2, 2.048 V on A3-A5); other boards assume
+   *         3.3 V (JP3 at 3.3 V).
    */
   [[nodiscard]] int32_t PotMillivolts(uint8_t samples = 1) const;
 
@@ -252,8 +257,8 @@ class AnalogShield {
   static void OnSwitch();
   /// @brief Average of @p samples analogRead() calls on @p pin, in ADC counts.
   [[nodiscard]] static float ReadAverage(uint8_t pin, uint8_t samples);
-  /// @brief Converts an ADC reading in counts to mV at the current resolution.
-  [[nodiscard]] float CountsToMillivolts(float counts) const noexcept;
+  /// @brief Converts an ADC reading on @p pin in counts to mV at the current resolution.
+  [[nodiscard]] float CountsToMillivolts(float counts, uint8_t pin) const noexcept;
   /// @brief Converts the voltage of a temperature signal from @p source to °C (see TempCelsius()).
   [[nodiscard]] static float MillivoltsToCelsius(float mv, TempSource source) noexcept;
 

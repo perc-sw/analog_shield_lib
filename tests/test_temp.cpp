@@ -33,17 +33,16 @@ TEST_CASE_FIXTURE(HostTest, "TempMillivolts() scales the 10-bit reading to a 3.3
 
 namespace {
 
-// ADC reading for an LMT84 output of sensor_mv on each path (schematic: 4.3x - 638 mV,
-// then the R15 / 10K divider for the MCU), rounded to the nearest count
+// 10-bit ADC reading for an LMT84 output of sensor_mv on each path (schematic: 4.3x - 638 mV,
+// then the R15 / 10K divider for MCU and EXT), rounded to the nearest count. EXT is on A3,
+// the Phyduino Pico's 2.048 V MAX11635; SENSOR and MCU are on the 3.3 V RP2040 ADC.
 int RawFor(const TempSource source, const double sensor_mv) {
   double mv = sensor_mv;
   if (source != TempSource::SENSOR) {
-    mv = 4.3 * sensor_mv - 638.0;
+    mv = (4.3 * sensor_mv - 638.0) * 6.98 / (6.98 + 10.0);
   }
-  if (source == TempSource::MCU) {
-    mv *= 6.98 / (6.98 + 10.0);
-  }
-  return static_cast<int>(std::lround(mv * 1023.0 / 3300.0));
+  const double full_scale_mv = source == TempSource::EXT ? 2048.0 : 3300.0;
+  return static_cast<int>(std::lround(mv * 1023.0 / full_scale_mv));
 }
 
 // LMT84 datasheet Table 3 (°C, mV)
@@ -62,27 +61,28 @@ static float CelsiusAt(const TempSource source, const int raw) {
   return shield.TempCelsius(source);
 }
 
-TEST_CASE_FIXTURE(HostTest, "TempCelsius() matches the LMT84 table on the SENSOR and MCU paths") {
-  for (const auto source : {TempSource::SENSOR, TempSource::MCU}) {
+TEST_CASE_FIXTURE(HostTest, "TempCelsius() matches the LMT84 table on every path") {
+  for (const auto source : {TempSource::SENSOR, TempSource::MCU, TempSource::EXT}) {
     for (const auto& point : LMT84_TABLE) {
       CAPTURE(static_cast<int>(source));
       CAPTURE(point.celsius);
-      // One ADC count is under 0.6 °C on SENSOR and 0.35 °C on MCU
+      // One ADC count is under 0.6 °C on SENSOR, 0.35 °C on MCU and 0.25 °C on EXT
       CHECK(std::fabs(CelsiusAt(source, RawFor(source, point.mv)) - point.celsius) <= 0.5);
     }
   }
 }
 
-TEST_CASE_FIXTURE(HostTest, "TempCelsius() on the EXT path, within the 3.3 V ADC range") {
-  for (const auto& point : LMT84_TABLE) {
-    if (RawFor(TempSource::EXT, point.mv) > 1023) {
-      continue;  // above 3.3 V, below about 21 °C
-    }
-    CAPTURE(point.celsius);
-    CHECK(std::fabs(CelsiusAt(TempSource::EXT, RawFor(TempSource::EXT, point.mv)) - point.celsius) <= 0.5);
-  }
-  // Full scale: 3.3 V on EXT is a sensor output of (3300 + 638) / 4.3 = 915.8 mV, about 21.8 °C
-  CHECK(CelsiusAt(TempSource::EXT, 1023) == doctest::Approx(21.8).epsilon(0.01));
+TEST_CASE_FIXTURE(HostTest, "TempMillivolts() uses each pin's full scale on the Phyduino Pico") {
+  AnalogShield shield;
+  fake::pins[TEMP_SIG_MCU].analog_value = 1023;
+  fake::pins[TEMP_SIG_EXT].analog_value = 1023;
+  CHECK(shield.TempMillivolts(TempSource::MCU) == 3300);  // A0, RP2040 ADC
+  CHECK(shield.TempMillivolts(TempSource::EXT) == 2048);  // A3, MAX11635
+}
+
+TEST_CASE_FIXTURE(HostTest, "TempCelsius() reads the same voltage alike on MCU and EXT") {
+  // JP2 routes one divider output to A0 or A3; 1000 mV is 310 counts on A0 and 500 on A3
+  CHECK(CelsiusAt(TempSource::EXT, 500) == doctest::Approx(CelsiusAt(TempSource::MCU, 310)).epsilon(0.01));
 }
 
 TEST_CASE_FIXTURE(HostTest, "TempFahrenheit() and TempKelvin() convert the TempCelsius() reading") {

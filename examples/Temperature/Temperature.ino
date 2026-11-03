@@ -3,13 +3,13 @@
  * Reads the on-board LMT84 temperature sensor once a second and prints the
  * ADC reading, the signal voltage and the temperature in °C, °F and K.
  *
- * Jumpers: JP1 at U1 (on-board sensor), JP2 at "MCU ADC", JP3 at 3.3 V.
+ * Jumpers: JP1 at Internal (on-board U1), JP2 at Internal (RP2040 ADC), JP3 at 3.3 V.
  * Output: Serial Monitor at 115200 baud, for example
  *   Raw: 1675  1350 mV  22.4 °C  72.3 °F  295.6 K
  *
  * Change SOURCE to TempSource::SENSOR to read the sensor before the
- * conditioning stage. TempSource::EXT is meant for an external ADC: on the
- * board's 3.3 V ADC it only reads above about 21 °C.
+ * conditioning stage, or to TempSource::EXT to read the conditioned signal on
+ * A3 (move JP2 to External, the MAX11635 ADC).
  *
  * Each reading averages SAMPLES ADC reads at 12-bit resolution, which steadies
  * the value. Every column is its own reading, so they can differ slightly.

@@ -20,6 +20,8 @@ target_compile_options(fake_arduino PRIVATE -Wall -Wextra $<$<BOOL:${ANALOG_SHIE
 
 # The library finds the fake Arduino.h through this link
 target_link_libraries(analog_shield PUBLIC fake_arduino)
+# Built as for the Phyduino Pico, the library's main board (per-pin ADC full scale)
+target_compile_definitions(analog_shield PUBLIC ARDUINO_PHYDUINO_PICO)
 
 file(GLOB TEST_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_LIST_DIR}/test_*.cpp")
 add_executable(host_tests ${TEST_SOURCES})

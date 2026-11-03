@@ -58,9 +58,9 @@ Examples that print use 115200 baud.
 
 | Pin | Name | Signal |
 |---|---|---|
-| A0 | `TEMP_SIG_MCU` | Conditioned temperature signal (JP2 → MCU ADC) |
-| A1 | `SENSOR_IN` | Raw temperature sensor (JP1 selects on-board U1 or external J1) |
-| A3 | `TEMP_SIG_EXT` | Conditioned temperature signal (JP2 → external ADC) |
+| A0 | `TEMP_SIG_MCU` | Conditioned temperature signal (JP2 at Internal: RP2040 ADC) |
+| A1 | `SENSOR_IN` | Raw temperature sensor (JP1: Internal on-board U1 or External J1) |
+| A3 | `TEMP_SIG_EXT` | Conditioned temperature signal (JP2 at External: MAX11635 ADC on the Phyduino Pico) |
 | A4 | `IR_VOUT` | Sharp GP2Y0A21YK0F IR distance sensor (J2) |
 | A5 | `POT` | Potentiometer RV1 |
 | D2 | `ENC_SW` | Rotary encoder switch, active low |

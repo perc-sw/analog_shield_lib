@@ -4,25 +4,24 @@
  * IDE Serial Plotter every 200 ms. The encoder switch selects which
  * conditioned temperature channel is read, MCU or EXT.
  *
- * Jumpers: JP1 at U1 (on-board sensor), JP2 at "MCU ADC", JP3 at 3.3 V.
+ * Jumpers: JP1 at Internal (on-board U1), JP2 at Internal (RP2040 ADC), JP3 at 3.3 V.
  * Output: Tools → Serial Plotter at 115200 baud, one line per sample:
  *   Encoder        encoder count, 2 per click (AnalogShield::EncoderCount())
  *   Potentiometer  RV1 wiper voltage, in V
  *   Sensor         raw LMT84 sensor (SENSOR_IN, A1), in °C
  *   Temperature    conditioned signal on the selected channel, in °C
- *   Switch         selected channel, -1 for MCU, 1 for EXT
+ *   Channel        selected analog input, 0 for MCU (A0), 3 for EXT (A3)
  * For example
- *   Encoder:12,Potentiometer:1.650,Sensor:22.41,Temperature:22.37,Switch:-1
+ *   Encoder:12,Potentiometer:1.650,Sensor:22.41,Temperature:22.37,Channel:0
  *
  * Each press of the encoder switch changes the channel; the switch is
  * debounced in onSwitch(). The LED for the selected channel flashes, 500 ms
  * on and 500 ms off:
- *   MCU (TEMP_SIG_MCU, A0)  green D1, Switch = -1
- *   EXT (TEMP_SIG_EXT, A3)  red D2,   Switch = 1
+ *   MCU (TEMP_SIG_MCU, A0)  green D1, Channel = 0
+ *   EXT (TEMP_SIG_EXT, A3)  red D2,   Channel = 3
  * JP2 routes the conditioned signal to only one of A0 and A3, so move it to
- * "external ADC" when selecting EXT; the other channel reads an unconnected
- * pin. EXT is meant for an external ADC: on the board's 3.3 V ADC it only
- * reads above about 21 °C.
+ * External when selecting EXT; the other channel reads an unconnected
+ * pin.
  *
  * Each reading averages SAMPLES ADC reads at 12-bit resolution (10 bits on an
  * Uno R3), which steadies the value.
@@ -96,7 +95,7 @@ void loop() {
     Serial.print(Shield.TempCelsius(TempSource::SENSOR, SAMPLES), 2);
     Serial.print(",Temperature:");
     Serial.print(Shield.TempCelsius(channel, SAMPLES), 2);
-    Serial.print(",Switch:");
-    Serial.println(ext ? 3 : 0);    // Output selected channel.
+    Serial.print(",Channel:");
+    Serial.println(ext ? 3 : 0);  // analog input number, A3 or A0
   }
 }

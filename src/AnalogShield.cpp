@@ -8,14 +8,17 @@
 
 namespace {
 
-// ADC referenced to VDD (JP3 at 3.3 V). SetAdcResolution() range: the
-// RP2040/RP2350 ADC is 12-bit, and every supported core accepts 8 to 12.
+// ADC full scale on boards other than the Phyduino Pico: VDD (JP3 at 3.3 V).
+// The Phyduino Pico core reports each pin's own full scale instead.
+// SetAdcResolution() range: the RP2040/RP2350 ADC is 12-bit, and every
+// supported core accepts 8 to 12.
 constexpr float ADC_REF_MV = 3300.0F;
 constexpr uint8_t ADC_MIN_BITS = 8;
 constexpr uint8_t ADC_MAX_BITS = 12;
 
-// Signal path, from the Rev-C schematic. TEMP_SIG_EXT = 4.3 * sensor - 638 mV;
-// TEMP_SIG_MCU = TEMP_SIG_EXT through the R15 (6.98K) / 10K divider.
+// Signal path, from the Rev-C schematic: gain stage 4.3 * sensor - 638 mV, the
+// low-pass filter (unity gain), then the R15 (6.98K) / 10K divider. JP2 routes
+// the divider output to TEMP_SIG_MCU or TEMP_SIG_EXT.
 constexpr float COND_GAIN = 4.3F;
 constexpr float COND_OFFSET_MV = 638.0F;
 constexpr float MCU_ATTN = 6.98F / (6.98F + 10.0F);
@@ -185,9 +188,16 @@ float AnalogShield::ReadAverage(const uint8_t pin, const uint8_t samples) {
   return static_cast<float>(sum) / n;
 }
 
-float AnalogShield::CountsToMillivolts(const float counts) const noexcept {
+// Phyduino Pico: A0-A2 are the RP2040 ADC (3.3 V), A3-A5 the MAX11635 (2.048 V)
+float AnalogShield::CountsToMillivolts(const float counts, const uint8_t pin) const noexcept {
   const auto full_scale = static_cast<float>((1UL << adc_bits) - 1);
-  return counts * ADC_REF_MV / full_scale;
+#if defined(ARDUINO_PHYDUINO_PICO)
+  const auto ref_mv = static_cast<float>(analogFullScaleMillivolts(pin));
+#else
+  (void)pin;
+  const float ref_mv = ADC_REF_MV;
+#endif
+  return counts * ref_mv / full_scale;
 }
 
 // Readings are never negative, so + 0.5 rounds to nearest
@@ -196,17 +206,15 @@ int AnalogShield::TempRaw(const TempSource source, const uint8_t samples) const 
 }
 
 int32_t AnalogShield::TempMillivolts(const TempSource source, const uint8_t samples) const {
-  return static_cast<int32_t>(CountsToMillivolts(ReadAverage(TempPin(source), samples)) + 0.5F);
+  return static_cast<int32_t>(CountsToMillivolts(ReadAverage(TempPin(source), samples), TempPin(source)) + 0.5F);
 }
 
 float AnalogShield::MillivoltsToCelsius(float mv, const TempSource source) noexcept {
   // Back to the sensor output voltage
   switch (source) {
     case TempSource::MCU:
-      mv = (mv / MCU_ATTN + COND_OFFSET_MV) / COND_GAIN;
-      break;
     case TempSource::EXT:
-      mv = (mv + COND_OFFSET_MV) / COND_GAIN;
+      mv = (mv / MCU_ATTN + COND_OFFSET_MV) / COND_GAIN;
       break;
     case TempSource::SENSOR:
     default:
@@ -220,7 +228,7 @@ float AnalogShield::MillivoltsToCelsius(float mv, const TempSource source) noexc
 
 // Unrounded mV rather than TempMillivolts(), which rounds to whole mV
 float AnalogShield::TempCelsius(const TempSource source, const uint8_t samples) const {
-  return MillivoltsToCelsius(CountsToMillivolts(ReadAverage(TempPin(source), samples)), source);
+  return MillivoltsToCelsius(CountsToMillivolts(ReadAverage(TempPin(source), samples), TempPin(source)), source);
 }
 
 float AnalogShield::TempFahrenheit(const TempSource source, const uint8_t samples) const {
@@ -236,7 +244,7 @@ int AnalogShield::PotRaw(const uint8_t samples) const {
 }
 
 int32_t AnalogShield::PotMillivolts(const uint8_t samples) const {
-  return static_cast<int32_t>(CountsToMillivolts(ReadAverage(AnalogShieldPins::POT, samples)) + 0.5F);
+  return static_cast<int32_t>(CountsToMillivolts(ReadAverage(AnalogShieldPins::POT, samples), AnalogShieldPins::POT) + 0.5F);
 }
 
 // The wiper spans the full ADC range, so this does not depend on the reference

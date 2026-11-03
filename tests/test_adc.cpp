@@ -62,5 +62,5 @@ TEST_CASE_FIXTURE(HostTest, "samples averages before converting, keeping fractio
   fake::pins[POT].analog_sequence = {0, 1023};
   CHECK(shield.PotPercent(2) == doctest::Approx(50.0));
   fake::pins[POT].analog_next = 0;
-  CHECK(shield.PotMillivolts(2) == 1650);
+  CHECK(shield.PotMillivolts(2) == 1024);  // 511.5 * 2048 / 1023
 }

@@ -49,6 +49,12 @@ int analogRead(pin_size_t pin) {
 
 void analogReadResolution(int bits) { fake::analog_resolution = bits; }
 
+uint32_t analogFullScaleMillivolts(pin_size_t pin) {
+  if (pin >= A0 && pin <= A2) return 3300;
+  if (pin >= A3 && pin <= A5) return 2048;
+  return 0;
+}
+
 void noInterrupts() { fake::interrupts_on = false; }
 void interrupts() { fake::interrupts_on = true; }
 
