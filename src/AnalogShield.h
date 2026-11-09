@@ -177,7 +177,8 @@ class AnalogShield {
   /**
    * @brief Reads a temperature signal and converts it to degrees Celsius.
    *
-   * Undoes the shield's signal path for @p source (the R15 / 10K divider, then
+   * Undoes the shield's signal path for @p source (the R15 / 10K divider, with
+   * the Phyduino Pico's 100 kΩ A3 pull-down in parallel with R15 for EXT, then
    * the conditioning stage Vout = 4.3 Vin - 0.638 V), then applies the LMT84
    * parabolic transfer function (datasheet Equation 2). Accurate over the
    * sensor's -50 to 150 °C range; outside it the result is extrapolated.
@@ -185,10 +186,11 @@ class AnalogShield {
    * @param source Signal to read.
    * @param samples ADC reads to average.
    * @return Temperature in °C, with the ADC full scale as for TempMillivolts().
-   * @note TempSource::MCU and TempSource::EXT span 61.7 mV to 2.039 V over the
-   *       sensor range, so both read the full range: EXT is within the
-   *       MAX11635's 2.048 V on the Phyduino Pico. Above a 1.3 V sensor input
-   *       (JP1 at External, J1) they clamp at about 2.05 V.
+   * @note Over the sensor range TempSource::MCU spans 61.7 mV to 2.039 V and
+   *       TempSource::EXT, loaded by the 100 kΩ pull-down, 58.8 mV to 1.954 V,
+   *       so both read the full range: EXT is within the MAX11635's 2.048 V on
+   *       the Phyduino Pico. Above a 1.3 V sensor input (JP1 at External, J1)
+   *       they clamp, MCU at about 2.05 V and EXT at about 1.97 V.
    */
   [[nodiscard]] float TempCelsius(TempSource source, uint8_t samples = 1) const;
 

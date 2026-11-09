@@ -21,7 +21,15 @@ constexpr uint8_t ADC_MAX_BITS = 12;
 // the divider output to TEMP_SIG_MCU or TEMP_SIG_EXT.
 constexpr float COND_GAIN = 4.3F;
 constexpr float COND_OFFSET_MV = 638.0F;
-constexpr float MCU_ATTN = 6.98F / (6.98F + 10.0F);
+constexpr float DIV_TOP_K = 10.0F;    // 10K, kΩ
+constexpr float DIV_BOTTOM_K = 6.98F; // R15, kΩ
+constexpr float MCU_ATTN = DIV_BOTTOM_K / (DIV_BOTTOM_K + DIV_TOP_K);
+
+// The Phyduino Pico has a 100 kΩ pull-down on A3 (R47), in parallel with R15.
+// The divider's 4.11 kΩ source impedance makes A3 read about 4 % below A0.
+constexpr float EXT_PULLDOWN_K = 100.0F;
+constexpr float EXT_BOTTOM_K = DIV_BOTTOM_K * EXT_PULLDOWN_K / (DIV_BOTTOM_K + EXT_PULLDOWN_K);
+constexpr float EXT_ATTN = EXT_BOTTOM_K / (EXT_BOTTOM_K + DIV_TOP_K);
 
 // LMT84 parabolic fit (datasheet Equation 1):
 // V = 870.6 mV - 5.506 mV/°C * (T - 30) - 0.00176 mV/°C² * (T - 30)²
@@ -213,8 +221,10 @@ float AnalogShield::MillivoltsToCelsius(float mv, const TempSource source) noexc
   // Back to the sensor output voltage
   switch (source) {
     case TempSource::MCU:
-    case TempSource::EXT:
       mv = (mv / MCU_ATTN + COND_OFFSET_MV) / COND_GAIN;
+      break;
+    case TempSource::EXT:
+      mv = (mv / EXT_ATTN + COND_OFFSET_MV) / COND_GAIN;
       break;
     case TempSource::SENSOR:
     default:

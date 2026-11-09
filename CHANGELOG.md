@@ -16,9 +16,10 @@ Format: one section per version, newest first.
 
 ### Fixed
 - `TempCelsius()` (and `TempFahrenheit()` / `TempKelvin()`) on `TempSource::EXT` left out the
-  R15 / 10K divider, so readings came out far too hot. A3 carries the same divided signal as A0
-  (61.7 mV to 2.039 V), so EXT now undoes the same signal path as MCU and reads the full sensor
-  range.
+  R15 / 10K divider, so readings came out far too hot. EXT now undoes the divider too, with the
+  Phyduino Pico's 100 kΩ pull-down on A3 (R47) in parallel with R15: that load makes A3 read about
+  4 % below A0 (58.8 mV to 1.954 V over the sensor range), which had read about 5 °C hot. EXT
+  reads the full sensor range.
 - Millivolt and temperature readings on the Phyduino Pico now use each pin's full scale from the
   core (`analogFullScaleMillivolts()`): 3.3 V on A0-A2 (RP2040 ADC) and 2.048 V on A3-A5
   (MAX11635). `TempMillivolts(TempSource::EXT)` and `PotMillivolts()` were 1.61 times too high.

@@ -35,11 +35,17 @@ namespace {
 
 // 10-bit ADC reading for an LMT84 output of sensor_mv on each path (schematic: 4.3x - 638 mV,
 // then the R15 / 10K divider for MCU and EXT), rounded to the nearest count. EXT is on A3,
-// the Phyduino Pico's 2.048 V MAX11635; SENSOR and MCU are on the 3.3 V RP2040 ADC.
+// the Phyduino Pico's 2.048 V MAX11635, where the 100 kΩ pull-down (R47) is in parallel with
+// R15; SENSOR and MCU are on the 3.3 V RP2040 ADC.
+constexpr double R15_K = 6.98;
+constexpr double EXT_BOTTOM_K = R15_K * 100.0 / (R15_K + 100.0);
+
 int RawFor(const TempSource source, const double sensor_mv) {
   double mv = sensor_mv;
-  if (source != TempSource::SENSOR) {
-    mv = (4.3 * sensor_mv - 638.0) * 6.98 / (6.98 + 10.0);
+  if (source == TempSource::MCU) {
+    mv = (4.3 * sensor_mv - 638.0) * R15_K / (R15_K + 10.0);
+  } else if (source == TempSource::EXT) {
+    mv = (4.3 * sensor_mv - 638.0) * EXT_BOTTOM_K / (EXT_BOTTOM_K + 10.0);
   }
   const double full_scale_mv = source == TempSource::EXT ? 2048.0 : 3300.0;
   return static_cast<int>(std::lround(mv * 1023.0 / full_scale_mv));
@@ -80,9 +86,11 @@ TEST_CASE_FIXTURE(HostTest, "TempMillivolts() uses each pin's full scale on the 
   CHECK(shield.TempMillivolts(TempSource::EXT) == 2048);  // A3, MAX11635
 }
 
-TEST_CASE_FIXTURE(HostTest, "TempCelsius() reads the same voltage alike on MCU and EXT") {
-  // JP2 routes one divider output to A0 or A3; 1000 mV is 310 counts on A0 and 500 on A3
-  CHECK(CelsiusAt(TempSource::EXT, 500) == doctest::Approx(CelsiusAt(TempSource::MCU, 310)).epsilon(0.01));
+TEST_CASE_FIXTURE(HostTest, "TempCelsius() allows for the A3 pull-down on EXT") {
+  // JP2 routes one divider output to A0 or A3. The 100 kΩ pull-down on A3 makes the same
+  // temperature read 0.9605 times the A0 voltage: 1341 mV on A0 (416 counts) is 1288 mV
+  // on A3 (643 counts). A Phyduino Pico read 1341 mV on A0 and 1280 mV on A3 on 2026-11-09.
+  CHECK(CelsiusAt(TempSource::EXT, 643) == doctest::Approx(CelsiusAt(TempSource::MCU, 416)).epsilon(0.01));
 }
 
 TEST_CASE_FIXTURE(HostTest, "TempFahrenheit() and TempKelvin() convert the TempCelsius() reading") {
