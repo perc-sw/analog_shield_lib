@@ -2,7 +2,7 @@
 
 Format: one section per version, newest first.
 
-## Unreleased
+## v0.1.1 (2026-11-09)
 
 ### Added
 - `plotter` example, a port of the MicroPython `examples/plotter/main.py`: prints the raw and
