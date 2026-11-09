@@ -51,6 +51,7 @@ settings it needs and what it prints.
 | `EncoderInterrupt` | The same, with encoder and switch callbacks | Serial Monitor |
 | `Temperature` | LMT84 temperature as an ADC reading, mV, °C, °F and K | Serial Monitor |
 | `SerialPlotter` | Encoder, potentiometer and temperatures live; the switch selects the MCU or EXT channel, shown on D1/D2 | Serial Plotter |
+| `plotter` | Port of the MicroPython `plotter` example: both temperatures, encoder clicks, channel, potentiometer and VBUS; the switch selects A0 or A3, shown on D1/D2. Phyduino Pico only | Serial Plotter |
 | `LedFade` | Fading D1 and D2 in and out with PWM (`analogWrite()`) | LEDs only |
 
 Examples that print use 115200 baud.

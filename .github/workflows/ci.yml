@@ -107,7 +107,14 @@ jobs:
       - name: Compile examples
         run: |
           status=0
+          # Sketches that need the Phyduino Pico (for example its on-board MAX11635 / VBUS)
+          phyduino_only=" plotter "
           for sketch in examples/*/; do
+            name="$(basename "$sketch")"
+            if [[ "${{ matrix.fqbn }}" != phyduino:* && "$phyduino_only" == *" $name "* ]]; then
+              echo "Skipping $name: Phyduino Pico only"
+              continue
+            fi
             echo "::group::$sketch"
             arduino-cli compile --fqbn ${{ matrix.fqbn }} --library . --warnings all "$sketch" || status=1
             echo "::endgroup::"

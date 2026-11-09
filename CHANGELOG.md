@@ -4,6 +4,12 @@ Format: one section per version, newest first.
 
 ## Unreleased
 
+### Added
+- `plotter` example, a port of the MicroPython `examples/plotter/main.py`: prints the raw and
+  conditioned temperatures, encoder clicks, selected channel, potentiometer voltage and VBUS
+  (read by the MAX11635) for the Serial Plotter. Both LEDs light if the MAX11635 does not respond
+  (VBUS reads 0). Phyduino Pico only; CI skips it on the Uno R3 and R4.
+
 ### Changed
 - Phyduino Pico builds now need phyduino_bsp v0.1.0-rc.2 or later, for
   `analogFullScaleMillivolts()`.
